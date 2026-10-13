@@ -22,7 +22,6 @@ export default function App({ Component, pageProps }: AppProps) {
           containerStyle={{ top: "4vw" }}
         />
         <Component {...pageProps} />
-        <BugReportButton />
       </Provider>
     </>
   );

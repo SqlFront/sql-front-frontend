@@ -197,12 +197,15 @@ export const tasksSlice = createSlice({
           }
         });
         
-        if (action.payload.submission.columns && action.payload.submission.data) {
+        if (action.payload.submission.columns && action.payload.submission.data && action.payload.submission.data.length > 0) {
           state.queryRun.result = {
             columns: action.payload.submission.columns,
             data: action.payload.submission.data,
             row_count: action.payload.submission.data.length,
           };
+        } else if (!action.payload.submission.is_correct) {
+          state.queryRun.result = null;
+          state.queryRun.queryError = action.payload.submission.hint || action.payload.submission.message;
         }
       })
       .addCase(submitTaskSolution.rejected.type, (state, action: PayloadAction<string | ErrorRunngingQuery>) => {

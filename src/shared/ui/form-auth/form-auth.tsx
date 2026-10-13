@@ -1,10 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 import { AuthType } from "@/shared/types/auth-data-types";
 import { colors } from "@/shared/ui/colors";
-import { useAppDispatch } from "@/shared/hooks/redux";
+import { useAppDispatch, useAppSelector } from "@/shared/hooks/redux";
 import { loginUser, registerUser } from "@/store/reducers/actions/auth-action";
 
 import { formFieldsLogin } from "./form-fields-login";
@@ -48,24 +49,49 @@ export const Form = ({ type }: { type: AuthType }) => {
   const dispatch = useAppDispatch();
   const config = formConfig[type];
   const router = useRouter();
+  const [authError, setAuthError] = useState<string | null>(null);
+  const isLoading = useAppSelector((state) => state.auth.isLoading);
 
   const { register, handleSubmit, formState: { errors, isValid, isDirty } } = useForm<FormType>({
     mode: "onChange",
   });
 
   const onSubmit = useCallback(async (data: FormType) => {
+    setAuthError(null);
     try {
       if (type === "login") {
         await dispatch(loginUser(data)).unwrap();
         router.push("/profile");
       } else {
         await dispatch(registerUser(data)).unwrap();
+        toast.success("Регистрация успешна! Войдите в аккаунт.");
         router.push("auth?type=login");
       }
-    } catch (error) { //TODO: handle error correctly
+    } catch (error: unknown) {
+      let errorMessage = "Ошибка авторизации";
+      if (typeof error === "string") {
+        errorMessage = error;
+      } else if (typeof error === "object" && error !== null) {
+        const errObj = error as Record<string, unknown>;
+        if (typeof errObj.detail === "string") {
+          errorMessage = errObj.detail;
+        } else if (Array.isArray(errObj.detail)) {
+          errorMessage = errObj.detail
+            .map((d: unknown) =>
+              typeof d === "object" && d !== null && "msg" in d
+                ? String((d as { msg: unknown }).msg)
+                : String(d)
+            )
+            .join(", ");
+        } else if (typeof errObj.message === "string") {
+          errorMessage = errObj.message;
+        }
+      }
+
+      setAuthError(errorMessage);
+      toast.error(errorMessage);
       console.log("AUTH ERROR:", error);
     }
-    
   }, [dispatch, type, router]);
 
   return (
@@ -100,14 +126,24 @@ export const Form = ({ type }: { type: AuthType }) => {
           }
         </div>
       ))}
+      {authError && (
+        <div style={{ position: "relative", minHeight: "1.2vw", textAlign: "right" }}>
+          <Error
+            message={authError}
+            color={config.errorColor}
+            right="0"
+          />
+        </div>
+      )}
       {(isValid && isDirty) && (
         <Button
           color={config.submitButton.color}
           width={config.submitButton.width}
           padding={config.submitButton.padding}
           type="submit"
+          disabled={isLoading}
         >
-          {config.submitButton.text}
+          {isLoading ? "Подождите..." : config.submitButton.text}
         </Button>
       )}
     </form>

@@ -87,6 +87,24 @@ export const MenuDrawer = ({
             }
           </>
         ))}
+        <div style={{ marginTop: "2vw", borderTop: "0.05vw solid #eee", paddingTop: "1vw" }}>
+          <a
+            href="https://github.com/SqlFront/sql-front-backend/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4vw",
+              fontSize: "0.9vw",
+              color: "#e53e3e",
+              textDecoration: "none",
+              fontWeight: 500,
+            }}
+          >
+            <span>🐛</span> Сообщить о баге
+          </a>
+        </div>
       </div>
     </Drawer>
   );

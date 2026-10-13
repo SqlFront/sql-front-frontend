@@ -118,32 +118,42 @@ export const Scene = () => {
       return;
     }
 
-    const result = await dispatch(submitQuestQuery({
-      questId: data.questId,
-      payload: {
-        scene_id: data?.sceneId,
-        sql_query: value,
-      },
-    })).unwrap();
-    
-    if (result.response.is_correct) {
-      toast.success(SubmitionToastText(result.response));
-      result.response.awarded_achievements.forEach((achievement) => {
-        toast.custom(<AchievementToast achievement={achievement} />, { duration: 5000, });
-      });
+    try {
+      const result = await dispatch(submitQuestQuery({
+        questId: data.questId,
+        payload: {
+          scene_id: data?.sceneId,
+          sql_query: value,
+        },
+      })).unwrap();
+      
+      if (result.response.is_correct) {
+        toast.success(SubmitionToastText(result.response));
+        result.response.awarded_achievements.forEach((achievement) => {
+          toast.custom(<AchievementToast achievement={achievement} />, { duration: 5000, });
+        });
 
-      setValue("");
-      dispatch(resetSceneData());
+        setValue("");
+        dispatch(resetSceneData());
 
-      if (result.response.is_quest_completed) {
-        toast.success(<Text>{strings.questEnd({ questId: data.questId })}</Text>);
-        router.replace("/quest");
-        return;
+        if (result.response.is_quest_completed) {
+          toast.success(<Text>{strings.questEnd({ questId: data.questId })}</Text>);
+          router.replace("/quest");
+          return;
+        }
+
+        dispatch(getQuestProgress(data.questId));
+      } else {
+        toast.error(SubmitionToastText(result.response));
       }
-
-      dispatch(getQuestProgress(data.questId));
-    } else {
-      toast.error(SubmitionToastText(result.response));
+    } catch (err: unknown) {
+      const errorMsg =
+        typeof err === "object" && err !== null && "detail" in err
+          ? String((err as { detail: unknown }).detail)
+          : typeof err === "string"
+          ? err
+          : strings.unexpectedError;
+      toast.error(errorMsg);
     }
   }, [dispatch, resetSceneData, data, value, router]);
 

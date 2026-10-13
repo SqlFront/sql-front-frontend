@@ -101,19 +101,29 @@ export const Task = () => {
   }, [dispatch, data.missionId, data.taskId, value]);
 
   const submitSolution = useCallback(async () => {
-    const result = await dispatch(submitTaskSolution({
-      taskId: data.taskId,
-      missionId: data.missionId,
-      payload: { sql_query: value },
-    })).unwrap();
+    try {
+      const result = await dispatch(submitTaskSolution({
+        taskId: data.taskId,
+        missionId: data.missionId,
+        payload: { sql_query: value },
+      })).unwrap();
 
-    if (result.submission?.is_correct) {
-      toast.success(SubmitionToastText(result.submission, data.task.isSolved));
-      result.submission.awarded_achievements.forEach((achievement) => {
-        toast.custom(<AchievementToast achievement={achievement} />, { duration: 5000, });
-      });
-    } else {
-      toast.error(SubmitionToastText(result.submission, data.task.isSolved));
+      if (result.submission?.is_correct) {
+        toast.success(SubmitionToastText(result.submission, data.task.isSolved));
+        result.submission.awarded_achievements.forEach((achievement) => {
+          toast.custom(<AchievementToast achievement={achievement} />, { duration: 5000, });
+        });
+      } else {
+        toast.error(SubmitionToastText(result.submission, data.task.isSolved));
+      }
+    } catch (err: unknown) {
+      const errorMsg =
+        typeof err === "object" && err !== null && "detail" in err
+          ? String((err as { detail: unknown }).detail)
+          : typeof err === "string"
+          ? err
+          : strings.unexpectedError;
+      toast.error(errorMsg);
     }
   }, [dispatch, data.taskId, data.missionId, value, data.task?.isSolved]);
 
@@ -165,7 +175,8 @@ export const Task = () => {
         margin="6vw 0"
       >
         {data.task?.title}
-        <span style={{ fontSize: "2vw", marginLeft: "2vw", verticalAlign: "middle", opacity: 0.6 }}>
+        <br />
+        <span style={{ fontSize: "1.8vw", verticalAlign: "middle", opacity: 0.6, whiteSpace: "nowrap", display: "inline-block", marginTop: "0.5vw" }}>
           {
             ({
               0: "Новобранец",
@@ -173,6 +184,7 @@ export const Task = () => {
               2: "Мастер",
               3: "Специалист",
               4: "Мастер",
+              5: "Эксперт",
             } as Record<number, string>)[Number(data.missionId)] || ""
           }
         </span>
