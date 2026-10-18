@@ -5,7 +5,7 @@ import Link from "next/link";
 export const BugReportButton = () => {
   return (
     <Link
-      href="https://github.com/HankyYt/sql-front-backend/issues"
+      href="https://forms.yandex.ru/u/6ad49fb0852af3e621c7a24c/"
       target="_blank"
       rel="noopener noreferrer"
       className={styles.bugReportButton}

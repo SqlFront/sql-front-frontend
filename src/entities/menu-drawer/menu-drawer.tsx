@@ -89,7 +89,7 @@ export const MenuDrawer = ({
         ))}
         <div style={{ marginTop: "2vw", borderTop: "0.05vw solid #eee", paddingTop: "1vw" }}>
           <a
-            href="https://github.com/SqlFront/sql-front-backend/issues"
+            href="https://forms.yandex.ru/u/6ad49fb0852af3e621c7a24c/"
             target="_blank"
             rel="noopener noreferrer"
             style={{
