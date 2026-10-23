@@ -20,12 +20,17 @@ const authConfig = {
     linkColor: colors.white,
     colorLinkHover: colors.grayMid,
   },
+  reset: {
+    color: "white",
+    linkColor: colors.white,
+    colorLinkHover: colors.grayMid,
+  },
 } as const;
 
 export const Auth = () => {
   const params = useSearchParams();
   const authType = (params.get("type") as AuthType) || "login";
-  const config = authConfig[authType];
+  const config = authConfig[authType] || authConfig.login;
 
   const makeAuth = useCallback((type: AuthType) => {
     const existingParams = params.toString();
@@ -36,17 +41,22 @@ export const Auth = () => {
 
   return (
     <section
-      className={styles[authType]}
+      className={styles[authType] || styles.login}
       style={{
         "--link-color": config.linkColor,
         "--link-hover-color": config.colorLinkHover,
       } as React.CSSProperties}
     >
       <div className={styles.menu}>
-        {authType === "login"
-          ? <Link href={makeAuth("register")} size="1vw">Зарегистрироваться</Link>
-          : <Link href={makeAuth("login")} size="1vw">Войти</Link>
-        }
+        {authType === "login" && (
+          <Link href={makeAuth("register")} size="1vw">Зарегистрироваться</Link>
+        )}
+        {authType === "register" && (
+          <Link href={makeAuth("login")} size="1vw">Войти</Link>
+        )}
+        {authType === "reset" && (
+          <Link href={makeAuth("login")} size="1vw">Войти</Link>
+        )}
       </div>
       <Title
         as="p"

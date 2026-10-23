@@ -8,6 +8,7 @@ const strings = {
     register: "/auth/register",
     login: "/auth/login",
     logout: "/auth/logout",
+    resetPassword: "/auth/reset-password",
     missions: "/missions",
     achievements: "/achievements",
     profile: "/profile/me",

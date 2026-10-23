@@ -1,4 +1,4 @@
-export type AuthType = "login" | "register";
+export type AuthType = "login" | "register" | "reset";
 
 export type DataRegisterType = {
   fullname?: string;
@@ -15,4 +15,14 @@ export type DataLoginType = {
 
 export type LoginResponseType = {
   access_token: string;
+};
+
+export type DataResetPasswordType = {
+  login: string;
+  email: string;
+  new_password: string;
+};
+
+export type ResetPasswordResponseType = {
+  message: string;
 };

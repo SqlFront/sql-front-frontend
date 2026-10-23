@@ -1,6 +1,11 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-import { loginUser, logoutUser, registerUser } from "./actions/auth-action";
+import {
+  loginUser,
+  logoutUser,
+  registerUser,
+  resetPasswordUser,
+} from "./actions/auth-action";
 import { LoginResponseType } from "@/shared/types/auth-data-types";
 import { DefaultStateType } from "@/shared/types/state-manager-types";
 import { tokenService } from "@/shared/config/token-service";
@@ -44,6 +49,19 @@ export const authSlice = createSlice({
         state.token = action.payload.access_token;
       })
       .addCase(loginUser.rejected.type, (state, action: PayloadAction<string>) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      // resetPasswordUser
+      .addCase(resetPasswordUser.pending.type, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(resetPasswordUser.fulfilled.type, (state) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(resetPasswordUser.rejected.type, (state, action: PayloadAction<string>) => {
         state.isLoading = false;
         state.error = action.payload;
       })
