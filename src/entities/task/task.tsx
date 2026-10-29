@@ -16,6 +16,7 @@ import strings from "@/shared/consts/strings";
 import { SubmissionResultType } from "@/shared/types/task-type";
 import { AchievementToast } from "@/shared/ui/achievement-toast/achievement-toast";
 import { tasksSlice } from "@/store/reducers/tasks-slice";
+import api from "@/shared/config/axios";
 
 const SubmitionToastText = (submission: SubmissionResultType | null, isSolved: boolean) => {
   if (submission === null) {
@@ -76,6 +77,68 @@ export const Task = () => {
   const toggleMenu = useCallback(() => {
     setIsMenuOpen((prev) => !prev);
   }, [setIsMenuOpen]);
+  // Telemetry: user inactivity & tab switching
+  useEffect(() => {
+    if (data.missionId === undefined || data.taskId === undefined) {
+      return;
+    }
+
+    let hasSentInactive = false;
+    const sendInactiveTelemetry = () => {
+      if (hasSentInactive) {
+        return;
+      }
+      hasSentInactive = true;
+      api.post(`/util/${data.missionId}/tasks/${data.taskId}/inactive`).catch(() => {});
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        sendInactiveTelemetry();
+      } else {
+        hasSentInactive = false;
+      }
+    };
+
+    const handleBlur = () => {
+      sendInactiveTelemetry();
+    };
+
+    const handleFocus = () => {
+      hasSentInactive = false;
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [data.missionId, data.taskId]);
+
+  // Telemetry: code paste detection (> 25 characters)
+  useEffect(() => {
+    if (data.missionId === undefined || data.taskId === undefined) {
+      return;
+    }
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const pasted = e.clipboardData?.getData("text") || "";
+      if (pasted.length > 25) {
+        api.post(`/util/${data.missionId}/tasks/${data.taskId}/paste`, {
+          length: pasted.length,
+          preview: pasted.slice(0, 40),
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [data.missionId, data.taskId]);
+
 
   const onChange = useCallback((val: string) => {
     setValue(val);
