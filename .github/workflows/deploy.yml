@@ -18,7 +18,20 @@ jobs:
           git fetch origin
           git reset --hard origin/main
           
-          echo "Rebuilding frontend container..."
           cd /home/admin/sqlfront/sql-backend
+          # Ensure Docker registry mirrors if sudo available
+          if command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+            if ! grep -q "timeweb.cloud" /etc/docker/daemon.json 2>/dev/null; then
+              echo "Configuring Docker registry mirrors in /etc/docker/daemon.json..."
+              sudo mkdir -p /etc/docker
+              echo '{"registry-mirrors": ["https://mirror.gcr.io", "https://dockerhub.timeweb.cloud"]}' | sudo tee /etc/docker/daemon.json >/dev/null
+              sudo systemctl reload docker 2>/dev/null || sudo systemctl restart docker 2>/dev/null || true
+              sleep 2
+            fi
+          fi
+
+          echo "Rebuilding frontend container..."
           docker compose build frontend || DOCKER_BUILDKIT=0 docker compose build frontend || echo "Build fallback using existing container"
-          docker compose up -d frontend
+          
+          # Start all containers so nginx, frontend, backend and postgres are all running
+          docker compose up -d
