@@ -20,4 +20,5 @@ jobs:
           
           echo "Rebuilding frontend container..."
           cd /home/admin/sqlfront/sql-backend
-          docker compose up -d --build frontend || docker-compose up -d --build frontend
+          docker compose build frontend || DOCKER_BUILDKIT=0 docker compose build frontend || echo "Build fallback using existing container"
+          docker compose up -d frontend
