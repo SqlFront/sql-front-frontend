@@ -149,9 +149,9 @@ export const Task = () => {
 
   const queryRunHandle = useCallback(() => {
     setError("");
-    const clearValue = value.replace(/--.*$/gmi, "").replace(/\n/gmi, " ");
+    const trimmed = value.trim();
 
-    if (!clearValue.toLocaleLowerCase().includes("select")) { //TODO: add node-sql-parser to check is 
+    if (!trimmed) {
       setError(strings.incorrectQuery);
       return;
     }
@@ -159,7 +159,7 @@ export const Task = () => {
     dispatch(runTaskQuery({
       taskId: data.taskId,
       missionId: data.missionId,
-      payload: { sql_query: clearValue },
+      payload: { sql_query: value },
     }));
   }, [dispatch, data.missionId, data.taskId, value]);
 

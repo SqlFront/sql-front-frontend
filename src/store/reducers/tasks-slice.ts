@@ -172,11 +172,12 @@ export const tasksSlice = createSlice({
         state.queryRun.result = null;
 
         const response = action.payload;
-        if (typeof response !== "string" && "detail" in response) {
-          state.queryRun.queryError = JSON.stringify(response.detail);
+        if (typeof response !== "string" && response && "detail" in response) {
+          state.queryRun.queryError = typeof response.detail === "string" ? response.detail : JSON.stringify(response.detail);
           state.queryRun.error = null;
         } else {
-          state.error = typeof action.payload === "string" ? action.payload : "Unknown error";
+          state.queryRun.queryError = typeof action.payload === "string" ? action.payload : "Ошибка выполнения запроса";
+          state.error = state.queryRun.queryError;
         }
       })
 
@@ -203,7 +204,14 @@ export const tasksSlice = createSlice({
             data: action.payload.submission.data,
             row_count: action.payload.submission.data.length,
           };
-        } else if (!action.payload.submission.is_correct) {
+        } else if (action.payload.submission.is_correct) {
+          state.queryRun.result = {
+            columns: ["Статус операции"],
+            data: [[action.payload.submission.hint || "Решение успешно проверено и принято"]],
+            row_count: 1,
+          };
+          state.queryRun.queryError = null;
+        } else {
           state.queryRun.result = null;
           state.queryRun.queryError = action.payload.submission.hint || action.payload.submission.message;
         }
@@ -213,11 +221,12 @@ export const tasksSlice = createSlice({
         state.queryRun.result = null;
 
         const response = action.payload;
-        if (typeof response !== "string" && "detail" in response) {
-          state.queryRun.queryError = JSON.stringify(response.detail);
+        if (typeof response !== "string" && response && "detail" in response) {
+          state.queryRun.queryError = typeof response.detail === "string" ? response.detail : JSON.stringify(response.detail);
           state.queryRun.error = null;
         } else {
-          state.error = typeof action.payload === "string" ? action.payload : "Unknown error";
+          state.queryRun.queryError = typeof action.payload === "string" ? action.payload : "Ошибка выполнения запроса";
+          state.error = state.queryRun.queryError;
         }
       });
   },
