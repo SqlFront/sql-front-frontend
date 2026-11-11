@@ -1,20 +1,26 @@
 import type { Edge, Node } from "@xyflow/react";
 import { AchievementSubmitType } from "./achievements-types";
+import { AnalysisPayloadType } from "./analysis-types";
 
 export type ResultQueryDataType = {
   columns: string[],
   data: (number | string)[][],
   row_count: number,
+  analysis?: AnalysisPayloadType,
 };
 
 export type TaskQueryRunType = {
   query: string | null;
   result: ResultQueryDataType | null;
   queryError: string | null;
+  analysis: AnalysisPayloadType | null;
 };
 
 export type ErrorRunngingQuery = {
-  detail: string,
+  detail: string | {
+    message: string;
+    analysis: AnalysisPayloadType;
+  },
 };
 
 export type TaskDataPayloadType = {
@@ -79,6 +85,7 @@ export type SubmissionResultType = {
   columns?: string[];
   data?: (number | string)[][];
   hint?: string;
+  analysis?: AnalysisPayloadType | null;
 };
 
 export type DatabaseSchemaResponseType = {

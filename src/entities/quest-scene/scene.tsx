@@ -19,6 +19,7 @@ import styles from "./scene.module.scss";
 import { SubmitQueryResultType } from "@/shared/types/quest-types";
 import { AchievementToast } from "@/shared/ui/achievement-toast/achievement-toast";
 import { ImageSceneBackground } from "@/shared/ui/image--scene-background/image--scene-background";
+import { prepareSqlPreview } from "@/shared/utils/prepare-sql-preview";
 
 const SubmitionToastText = (submission: SubmitQueryResultType | null) => {
   if (submission === null) {
@@ -29,6 +30,12 @@ const SubmitionToastText = (submission: SubmitQueryResultType | null) => {
     return (
       <Text>
         {strings.correctTaskQuery} +{submission.points.earned}
+        {submission.analysis?.grading && (
+          <>
+            <br />
+            Качество: {submission.analysis.grading.label} ({submission.analysis.grading.score_percent}%)
+          </>
+        )}
       </Text>
     );
   } else {
@@ -46,7 +53,7 @@ export const Scene = () => {
   const [error, setError] = useState("");
   const data = useSceneData();
   const dispatch = useAppDispatch();
-  const { queryRun } = useAppSelector((state) => state.quest);
+  const { queryRun, submission } = useAppSelector((state) => state.quest);
   const { goToTask, resetSceneData } = questSlice.actions;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
@@ -86,13 +93,9 @@ export const Scene = () => {
     }
 
     setError("");
-    const clearValue = value.replace(/--.*$/gmi, "").replace(/\n/gmi, " ");
-
-    if (
-      !clearValue.toLocaleLowerCase().includes("select") &&
-      !clearValue.toLocaleLowerCase().includes("update")
-    ) { //TODO: add node-sql-parser to check is 
-      setError(strings.incorrectQuery);
+    const prepared = prepareSqlPreview(value);
+    if (prepared.error) {
+      setError(prepared.error);
       return;
     }
 
@@ -100,7 +103,7 @@ export const Scene = () => {
       questId: data.questId,
       payload: {
         scene_id: data?.sceneId,
-        sql_query: clearValue,
+        sql_query: prepared.sql,
       },
     }));
   }, [dispatch, data, value]);
@@ -231,6 +234,7 @@ export const Scene = () => {
                   queryRunHandle={handleRunQuery}
                   submitSolution={handleSubmitSolution}
                   resultData={error ? error : queryRun.result ? queryRun.result : queryRun.queryError}
+                  analysis={submission.analysis || queryRun.analysis}
                   getClue={() => { return; }} // TODO: add clue handle
                 />
               </div>

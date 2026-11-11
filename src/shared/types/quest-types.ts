@@ -1,6 +1,7 @@
 import { QuestIds } from "../consts/quest-id";
 import { AchievementSubmitType } from "./achievements-types";
 import { ResultQueryDataType } from "./task-type";
+import { AnalysisPayloadType } from "./analysis-types";
 
 export type SceneProgressType = "legend" | "task";
 
@@ -32,6 +33,8 @@ export type SubmitQueryResultType = {
   };
   is_quest_completed: boolean;
   awarded_achievements: AchievementSubmitType[];
+  feedback?: string[];
+  analysis?: AnalysisPayloadType | null;
 };
 
 export type SubmitQueryResultResponseType = { response: SubmitQueryResultType } & { sql_query: string };

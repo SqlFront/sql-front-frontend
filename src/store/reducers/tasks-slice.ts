@@ -5,7 +5,9 @@ import type { Edge, Node } from "@xyflow/react";
 import { DefaultStateType } from "@/shared/types/state-manager-types";
 
 import { StateType } from "../store";
+
 import { getDatabaseSchema, getTaskClueData, getTaskData, getTaskExpectedResultData, runTaskQuery, submitTaskSolution } from "./actions/task-actions";
+import { normalizePreviewError } from "@/shared/utils/preview-error";
 
 type TaskType = {
   taskId: number;
@@ -43,6 +45,7 @@ const initialQueryRun = {
   query: null,
   result: null,
   queryError: null,
+  analysis: null,
   isLoading: false,
   error: null,
 };
@@ -123,14 +126,7 @@ export const tasksSlice = createSlice({
       })
       .addCase(getTaskClueData.rejected.type, (state, action: PayloadAction<string | ErrorRunngingQuery>) => {
         state.isLoading = false;
-
-        const response = action.payload;
-
-        if (typeof response !== "string" && "detail" in response) {
-          state.error = response.detail;
-        } else {
-          state.error = typeof action.payload === "string" ? action.payload : "Unknown error";
-        }
+        state.error = normalizePreviewError(action.payload).message;
       })
 
       //getTaskExpectedResultData
@@ -151,19 +147,14 @@ export const tasksSlice = createSlice({
       })
       .addCase(getTaskExpectedResultData.rejected.type, (state, action: PayloadAction<string | ErrorRunngingQuery>) => {
         state.isLoading = false;
-        
-        const response = action.payload;
-
-        if (typeof response !== "string" && "detail" in response) {
-          state.error = response.detail;
-        } else {
-          state.error = typeof action.payload === "string" ? action.payload : "Unknown error";
-        }
+        state.error = normalizePreviewError(action.payload).message;
       })
 
       //runTaskQuery
       .addCase(runTaskQuery.pending.type, (state) => {
         state.queryRun.isLoading = true;
+        state.queryRun.queryError = null;
+        state.queryRun.analysis = null;
       })
       .addCase(runTaskQuery.fulfilled.type, (state, action: PayloadAction<QueryRunResponseType>) => {
         state.queryRun.isLoading = false;
@@ -175,20 +166,18 @@ export const tasksSlice = createSlice({
           query: action.payload.payload.sql_query,
           result: action.payload.response,
           queryError: null,
+          analysis: action.payload.response.analysis ?? null,
         };
       })
       .addCase(runTaskQuery.rejected.type, (state, action: PayloadAction<string | ErrorRunngingQuery>) => {
         state.queryRun.isLoading = false;
         state.queryRun.result = null;
 
-        const response = action.payload;
-        if (typeof response !== "string" && response && "detail" in response) {
-          state.queryRun.queryError = typeof response.detail === "string" ? response.detail : JSON.stringify(response.detail);
-          state.queryRun.error = null;
-        } else {
-          state.queryRun.queryError = typeof action.payload === "string" ? action.payload : "Ошибка выполнения запроса";
-          state.error = state.queryRun.queryError;
-        }
+
+        const previewError = normalizePreviewError(action.payload);
+        state.queryRun.queryError = previewError.message;
+        state.queryRun.analysis = previewError.analysis;
+        state.queryRun.error = null;
       })
 
       //submitTaskSolution
@@ -199,6 +188,7 @@ export const tasksSlice = createSlice({
         state.queryRun.isLoading = false;
         state.queryRun.error = null;
         state.queryRun.queryError = null;
+        state.queryRun.analysis = action.payload.submission.analysis ?? null;
 
         tasksAdapter.updateOne(state, {
           id: `${action.payload.missionId}.${action.payload.taskId}`,
@@ -230,14 +220,11 @@ export const tasksSlice = createSlice({
         state.queryRun.isLoading = false;
         state.queryRun.result = null;
 
-        const response = action.payload;
-        if (typeof response !== "string" && response && "detail" in response) {
-          state.queryRun.queryError = typeof response.detail === "string" ? response.detail : JSON.stringify(response.detail);
-          state.queryRun.error = null;
-        } else {
-          state.queryRun.queryError = typeof action.payload === "string" ? action.payload : "Ошибка выполнения запроса";
-          state.error = state.queryRun.queryError;
-        }
+
+        const previewError = normalizePreviewError(action.payload);
+        state.queryRun.queryError = previewError.message;
+        state.queryRun.analysis = previewError.analysis;
+        state.queryRun.error = null;
       })
       .addCase(getDatabaseSchema.pending.type, (state) => {
         state.schema.isLoading = true;

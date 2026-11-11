@@ -7,6 +7,7 @@ import { getQuestList, getQuestProgress, runQuestQuery, submitQuestQuery } from 
 import { StateType } from "../store";
 import { DefaultStateType } from "@/shared/types/state-manager-types";
 import { ErrorRunngingQuery, TaskQueryRunType } from "@/shared/types/task-type";
+import { normalizePreviewError } from "@/shared/utils/preview-error";
 
 type QuestStateType = {
   questId: QuestIds;
@@ -33,6 +34,7 @@ const initialQueryRun = {
   query: null,
   result: null,
   queryError: null,
+  analysis: null,
   isLoading: false,
   error: null,
 };
@@ -121,6 +123,8 @@ export const questSlice = createSlice({
       //runQuestQuery
       .addCase(runQuestQuery.pending.type, (state) => {
         state.isLoading = true;
+        state.queryRun.queryError = null;
+        state.queryRun.analysis = null;
       })
       .addCase(runQuestQuery.fulfilled.type, (state, action: PayloadAction<RunQuestQueryResponseType>) => {
         state.isLoading = false;
@@ -132,19 +136,17 @@ export const questSlice = createSlice({
           query: action.payload.sql_query,
           result: action.payload.response,
           queryError: null,
+          analysis: action.payload.response.analysis ?? null,
         };
       })
       .addCase(runQuestQuery.rejected.type, (state, action: PayloadAction<string | ErrorRunngingQuery>) => {
         state.queryRun.isLoading = false;
         state.queryRun.result = null;
 
-        const response = action.payload;
-        if (typeof response !== "string" && "detail" in response) {
-          state.queryRun.queryError = JSON.stringify(response.detail);
-          state.queryRun.error = null;
-        } else {
-          state.error = typeof action.payload === "string" ? action.payload : "Unknown error";
-        }
+        const previewError = normalizePreviewError(action.payload);
+        state.queryRun.queryError = previewError.message;
+        state.queryRun.analysis = previewError.analysis;
+        state.queryRun.error = null;
       })
 
       //submitQuestQuery
@@ -165,13 +167,10 @@ export const questSlice = createSlice({
         state.queryRun.isLoading = false;
         state.queryRun.result = null;
 
-        const response = action.payload;
-        if (typeof response !== "string" && "detail" in response) {
-          state.queryRun.queryError = JSON.stringify(response.detail);
-          state.queryRun.error = null;
-        } else {
-          state.error = typeof action.payload === "string" ? action.payload : "Unknown error";
-        }
+        const previewError = normalizePreviewError(action.payload);
+        state.queryRun.queryError = previewError.message;
+        state.queryRun.analysis = previewError.analysis;
+        state.queryRun.error = null;
       });
     }
 });

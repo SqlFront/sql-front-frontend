@@ -16,7 +16,10 @@ import strings from "@/shared/consts/strings";
 import { SubmissionResultType } from "@/shared/types/task-type";
 import { AchievementToast } from "@/shared/ui/achievement-toast/achievement-toast";
 import { tasksSlice } from "@/store/reducers/tasks-slice";
+
 import api from "@/shared/config/axios";
+
+import { prepareSqlPreview } from "@/shared/utils/prepare-sql-preview";
 
 const SubmitionToastText = (submission: SubmissionResultType | null, isSolved: boolean) => {
   if (submission === null) {
@@ -33,6 +36,12 @@ const SubmitionToastText = (submission: SubmissionResultType | null, isSolved: b
     return (
       <Text>
         {strings.correctTaskQuery} +{submission.points_earned}
+        {submission.analysis?.grading && (
+          <>
+            <br />
+            Качество: {submission.analysis.grading.label} ({submission.analysis.grading.score_percent}%)
+          </>
+        )}
       </Text>
     );
   } else {
@@ -178,17 +187,18 @@ export const Task = () => {
       return;
     }
     setError("");
-    const trimmed = value.trim();
 
-    if (!trimmed) {
-      setError(strings.incorrectQuery);
+    const prepared = prepareSqlPreview(value);
+    if (prepared.error) {
+      setError(prepared.error);
       return;
     }
 
     dispatch(runTaskQuery({
       taskId: data.taskId,
       missionId: data.missionId,
-      payload: { sql_query: value },
+
+      payload: { sql_query: prepared.sql },
     }));
   }, [dispatch, data.missionId, data.taskId, value]);
 
@@ -308,6 +318,7 @@ export const Task = () => {
         queryRunHandle={queryRunHandle}
         submitSolution={submitSolution}
         resultData={error ? error : queryRun.result ? queryRun.result : queryRun.queryError}
+        analysis={queryRun.analysis}
         getClue={getClue}
         nextTask={data.task?.next}
       />

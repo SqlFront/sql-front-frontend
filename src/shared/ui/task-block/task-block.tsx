@@ -18,6 +18,8 @@ import { colorConfigByType } from "@/shared/consts/color-config-by-type";
 import styles from "./task-block.module.scss";
 import { ResultTable } from "../result-table/result-table";
 import { DatabaseInfoDrawer } from "../database-info-drawer/database-info-drawer";
+import { AnalysisPayloadType } from "@/shared/types/analysis-types";
+import { AnalysisFeedback } from "../analysis-feedback/analysis-feedback";
 
 type DefaultTaskBlock = {
   isSolved?: boolean,
@@ -33,6 +35,7 @@ type DefaultTaskBlock = {
     taskId: number | null;
     missionId: number | null;
   } | null;
+  analysis?: AnalysisPayloadType | null;
 };
 
 type TaskBlockType =
@@ -60,6 +63,7 @@ export const TaskBlock = ({
   resultData,
   getClue,
   nextTask,
+  analysis,
 }: TaskBlockType) => {
   const [isDatabaseInfoOpen, setIsDatabaseInfoOpen] = useState(false);
   const [isTaskCluesOpen, setIsTaskCluesOpen] = useState(false);
@@ -118,6 +122,7 @@ export const TaskBlock = ({
             completionKeymap: false,
           }}
         />
+        <AnalysisFeedback analysis={analysis} />
         <div className={styles.spaceBetween}>
           <div className={`${styles.spaceBetween} ${styles.buttonsLeftWidth}`}>
             <Button

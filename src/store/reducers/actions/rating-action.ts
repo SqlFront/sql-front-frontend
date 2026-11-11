@@ -21,7 +21,7 @@ export const getRating = createAsyncThunk(
         try {
           const currentUserResponse = await api.get<UserRatingType | null>(strings.api.ratingPersonal);
           currentUser = currentUserResponse.data;
-        } catch (_) {
+        } catch {
           currentUser = null;
         }
       }
