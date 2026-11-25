@@ -8,6 +8,10 @@ import { Button } from "@/shared/ui/button/button";
 import { Text } from "@/shared/ui/text/text";
 import { ERDiagramType } from "@/shared/types/er-diagram-types";
 import { ResultQueryDataType, TaskClueData } from "@/shared/types/task-type";
+import { TheoryHint } from "@/shared/consts/theory-hints-config";
+import { TaskDescription } from "@/shared/ui/task-description/task-description";
+import { HistoryNote as HistoryNoteType } from "@/shared/consts/history-notes";
+import { HistoryNote } from "@/shared/ui/history-note/history-note";
 import { QuestClueData } from "@/shared/types/quest-types";
 import { lightCodeMirrorTheme } from "@/shared/ui/code-mirror/code-mirror-theme-light";
 import { darkCodeMirrorTheme } from "../code-mirror/code-mirror-theme-dark";
@@ -28,6 +32,8 @@ type DefaultTaskBlock = {
   submitSolution: () => void;
   resultData: string | ResultQueryDataType | null;
   getClue: () => void;
+  theoryHint?: TheoryHint;
+  historyNote?: HistoryNoteType;
   sceneId?: string | null;
   nextTask?: {
     taskId: number | null;
@@ -59,6 +65,8 @@ export const TaskBlock = ({
   submitSolution,
   resultData,
   getClue,
+  theoryHint,
+  historyNote,
   nextTask,
 }: TaskBlockType) => {
   const [isDatabaseInfoOpen, setIsDatabaseInfoOpen] = useState(false);
@@ -99,7 +107,7 @@ export const TaskBlock = ({
       }
       <div className={styles.taskBlockContainer}>
         <Text color={colorConfigByType[type]}>
-          {task}
+          <TaskDescription text={task} hint={theoryHint} />
         </Text>
         <CodeMirror
           className={styles.codeWindow}
@@ -175,6 +183,7 @@ export const TaskBlock = ({
           />
           : null
         }
+        {type === "task" && isSolved && historyNote && <HistoryNote note={historyNote} />}
         {type === "task" && isSolved && 
           <div className={styles.toMissionsButtonContainer}>
             <Link

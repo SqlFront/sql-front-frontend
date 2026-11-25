@@ -1,0 +1,170 @@
+.root {
+  position: relative;
+}
+
+.term {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: $red-color;
+  text-decoration-thickness: 0.12vw;
+  text-underline-offset: 0.3vw;
+
+  &:hover,
+  &.termActive {
+    text-decoration-style: solid;
+  }
+}
+
+.popover {
+  position: absolute;
+  padding: 8px;
+  left: -1vw;
+  z-index: 20;
+  width: min(28vw, 420px);
+  box-sizing: border-box;
+
+
+  background-color: white;
+  color: $black-color;
+  border: 0.1vw solid $black-color;
+  border-radius: 1.2vw;
+  box-shadow: 0 0.6vw 2vw rgba(0, 0, 0, 0.12);
+
+  font-family: 'Moscow Sans';
+  font-weight: 200;
+  font-size: 1vw;
+  line-height: 125%;
+  text-align: left;
+  cursor: default;
+  user-select: text;
+}
+
+.content {
+  direction: rtl;
+  border-radius: inherit;
+  scrollbar-width: auto;
+  scrollbar-gutter: auto;
+
+  &::-webkit-scrollbar {
+    display: block;
+    width: 12px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #ededed;
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #858585;
+    border: 2px solid #ededed;
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #666;
+  }
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+  padding: 1.2vw 1.4vw 1.1vw;
+  box-sizing: border-box;
+  max-height: max(0px, calc(var(--hint-space, 35vh) - 1.3vw - 16px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  > * {
+    flex: none;
+    direction: ltr;
+  }
+} 
+
+.top {
+  bottom: calc(100% + 1.1vw);
+}
+
+.bottom {
+  top: calc(100% + 1.1vw);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-family: Consolas, "Courier New", monospace;
+  font-weight: 700;
+  font-size: 1.6vw;
+  line-height: 1;
+  color: $red-color;
+}
+
+.close {
+  font: inherit;
+  font-size: 1.6vw;
+  line-height: 1;
+  color: $black-color;
+  background: none;
+  border: 0;
+  padding: 0 0.2vw;
+  cursor: pointer;
+
+  &:hover {
+    color: $red-color;
+  }
+}
+
+.text {
+  display: block;
+}
+
+.syntax {
+  display: block;
+  padding: 0.7vw 0.9vw;
+  background-color: $gray-light-color;
+  border-radius: 0.6vw;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.9vw;
+  line-height: 140%;
+  white-space: pre-wrap;
+  user-select: none;
+}
+
+.link {
+  color: $red-color;
+  text-decoration: underline;
+  text-underline-offset: 0.25vw;
+
+  &:hover {
+    color: $black-color;
+  }
+}
+
+.arrow {
+  position: absolute;
+  left: 2.2vw;
+  width: 1vw;
+  height: 1vw;
+  background-color: white;
+  transform: rotate(45deg);
+}
+
+.top .arrow {
+  bottom: -0.55vw;
+  border-right: 0.1vw solid $black-color;
+  border-bottom: 0.1vw solid $black-color;
+}
+
+.bottom .arrow {
+  top: -0.55vw;
+  border-left: 0.1vw solid $black-color;
+  border-top: 0.1vw solid $black-color;
+}

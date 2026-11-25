@@ -1,0 +1,99 @@
+.card {
+  margin: 2vw 0;
+  padding: 1.4vw 2.4vw;
+
+  border: 0.1vw solid $black-color;
+  border-radius: 1.2vw;
+  background-color: white;
+  color: $black-color;
+
+  font-family: 'Moscow Sans';
+  font-weight: 200;
+  user-select: text;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover .chevron {
+    color: $red-color;
+  }
+}
+
+.label {
+  font-size: 1.1vw;
+  color: #6B6B6B;
+}
+
+.chevron {
+  width: 1.8vw;
+  height: 1.8vw;
+  color: $black-color;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.bodyOpen {
+  grid-template-rows: 1fr;
+}
+
+.inner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vw;
+}
+
+.title {
+  margin: 0.8vw 0 0;
+  font-family: 'Buran USSR';
+  font-weight: 550;
+  font-size: 3vw;
+  line-height: 1;
+  color: $black-color;
+}
+
+.dates {
+  font-size: 1.1vw;
+  color: $red-color;
+}
+
+.text {
+  margin: 0;
+  max-width: 60vw;
+  font-size: 1.1vw;
+  line-height: 140%;
+}
+
+.link {
+  align-self: flex-start;
+  margin-bottom: 0.6vw;
+  font-size: 1vw;
+  color: $red-color;
+  text-decoration: underline;
+  text-underline-offset: 0.25vw;
+
+  &:hover {
+    color: $black-color;
+  }
+}
