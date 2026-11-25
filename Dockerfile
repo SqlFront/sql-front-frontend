@@ -1,5 +1,5 @@
-# Use the official Node.js 18 Alpine image as the base
-FROM --platform=linux/amd64 node:18-alpine
+# Vite 7 in yarn.lock requires Node.js 20.19+ or 22.12+.
+FROM node:22-alpine
 
 # Set the working directory inside the container
 WORKDIR /app
