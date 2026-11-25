@@ -273,7 +273,7 @@ export const Task = () => {
           <span aria-hidden="true">← </span>
           Миссия {data.missionId}.{data.taskId}
           {missionName && ` ${missionName}`}
-        </Link>
+        </Link> 
         <Text size="1.2vw">
           Мои баллы: {data.totalScore}
         </Text>

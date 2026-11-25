@@ -10,11 +10,10 @@ type TheoryTermProps = {
   children: React.ReactNode;
 };
 
-const FLIP_THRESHOLD = 0.35;
+const EDGE_MARGIN = 12;
 
 export const TheoryTerm = ({ term, children }: TheoryTermProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [placement, setPlacement] = useState<"top" | "bottom">("top");
   const rootRef = useRef<HTMLSpanElement>(null);
   const data = theoryTerms[term];
 
@@ -22,16 +21,24 @@ export const TheoryTerm = ({ term, children }: TheoryTermProps) => {
     setIsOpen(false);
   }, []);
 
-  const toggle = useCallback(() => {
-    const rect = rootRef.current?.getBoundingClientRect();
-    setPlacement(rect && rect.top < window.innerHeight * FLIP_THRESHOLD ? "bottom" : "top");
-    setIsOpen((prev) => !prev);
+  const updatePosition = useCallback(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const rect = root.getBoundingClientRect();
+    const above = rect.top;
+    root.style.setProperty("--hint-space", Math.max(0, above - EDGE_MARGIN) + "px");
   }, []);
 
+  const toggle = useCallback(() => {
+    updatePosition();
+    setIsOpen((prev) => !prev);
+  }, [updatePosition]);
+
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+    if (!isOpen) return;
+
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -49,10 +56,12 @@ export const TheoryTerm = ({ term, children }: TheoryTermProps) => {
     document.addEventListener("mousedown", handleMouseDown);
 
     return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [isOpen, close]);
+  }, [isOpen, close, updatePosition]);
 
   return (
     <span className={styles.root} ref={rootRef}>
@@ -67,31 +76,33 @@ export const TheoryTerm = ({ term, children }: TheoryTermProps) => {
       </button>
       {isOpen && (
         <span
-          className={cn(styles.popover, styles[placement])}
+          className={cn(styles.popover, styles.top)}
           role="dialog"
           aria-label={data.title}
         >
-          <span className={styles.header}>
-            <span className={styles.title}>{data.title}</span>
-            <button
-              type="button"
-              className={styles.close}
-              onClick={close}
-              aria-label="Закрыть"
+          <span className={styles.content} tabIndex={0}>
+            <span className={styles.header}>
+              <span className={styles.title}>{data.title}</span>
+              <button
+                type="button"
+                className={styles.close}
+                onClick={close}
+                aria-label="Закрыть"
+              >
+                ×
+              </button>
+            </span>
+            <span className={styles.text}>{data.text}</span>
+            <code className={styles.syntax}>{data.syntax}</code>
+            <a
+              className={styles.link}
+              href={data.docsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              ×
-            </button>
+              Подробнее в документации
+            </a>
           </span>
-          <span className={styles.text}>{data.text}</span>
-          <code className={styles.syntax}>{data.syntax}</code>
-          <a
-            className={styles.link}
-            href={data.docsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Подробнее в документации
-          </a>
           <span className={styles.arrow} aria-hidden="true" />
         </span>
       )}
